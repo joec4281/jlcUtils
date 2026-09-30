@@ -3,8 +3,13 @@
 if isdir r:\temp set temp=r:\temp
 
 pushd
+set tccignore=*.bak *.bmark *.org transcript.md
+set tccignore=/[!%tccignore]
+
 cdd e:\documents\github\jlcutils
-copy e:\documents\plugins\jlcUtils\*.* /s
+
+copy /s %tccignore e:\documents\plugins\jlcUtils\*.*
+
 git add .
 git commit -m "Misc. Updates"
 git push

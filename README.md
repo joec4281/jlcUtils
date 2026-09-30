@@ -1,4 +1,4 @@
-This is jlcUtils, a plugin for use with TCC v36.
+A plugin for Take Command Console that I use to test ideas.
 
 Use at your own risk.
 
