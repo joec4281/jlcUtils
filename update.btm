@@ -1,0 +1,13 @@
+@SETLOCAL
+@ECHO OFF
+if isdir r:\temp set temp=r:\temp
+
+pushd
+cdd e:\documents\github\jlcutils
+copy e:\documents\plugins\jlcUtils\*.* /s
+git add .
+git commit -m "Misc. Updates"
+git push
+popd
+
+ENDLOCAL

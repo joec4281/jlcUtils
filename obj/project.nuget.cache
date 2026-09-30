@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "fPudj//3vzM=",
+  "success": true,
+  "projectFilePath": "E:\\Documents\\jlcUtils\\jlcUtils.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jlcav\\.nuget\\packages\\system.codedom\\10.0.11\\system.codedom.10.0.11.nupkg.sha512"
+  ],
+  "logs": []
+}

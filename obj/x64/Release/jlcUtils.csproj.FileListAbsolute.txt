@@ -1,0 +1,12 @@
+E:\Documents\plugins\jlcUtils\bin\Release\jlcUtils.dll
+E:\Documents\plugins\jlcUtils\bin\Release\jlcUtils.pdb
+E:\Documents\plugins\jlcUtils\bin\Release\System.CodeDom.dll
+E:\Documents\plugins\jlcUtils\bin\Release\CSScriptLibrary.dll
+E:\Documents\plugins\jlcUtils\bin\Release\Microsoft.CSharp.dll
+E:\Documents\plugins\jlcUtils\bin\Release\TC-DotNetPluginHost64.dll
+E:\Documents\plugins\jlcUtils\obj\x64\Release\jlcUtils.csproj.AssemblyReference.cache
+E:\Documents\plugins\jlcUtils\obj\x64\Release\jlcUtils.GeneratedMSBuildEditorConfig.editorconfig
+E:\Documents\plugins\jlcUtils\obj\x64\Release\jlcUtils.csproj.CoreCompileInputs.cache
+E:\Documents\plugins\jlcUtils\obj\x64\Release\jlcUtils.csproj.Up2Date
+E:\Documents\plugins\jlcUtils\obj\x64\Release\jlcUtils.dll
+E:\Documents\plugins\jlcUtils\obj\x64\Release\jlcUtils.pdb

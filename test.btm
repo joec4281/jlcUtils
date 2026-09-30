@@ -1,0 +1,43 @@
+@SETLOCAL
+@ECHO OFF
+if isdir r:\temp set temp=r:\temp
+if plugin jlcutils plugin /u jlcutils 
+rem if exist E:\Documents\plugins\jlcUtils\bin\Release\jlcUtils.dll del E:\Documents\plugins\jlcUtils\bin\Release\jlcUtils.dll
+
+rem "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\msbuild.exe" "E:\Documents\jlcUtils\jlcUtils.csproj" /t:Build /p:Configuration=Release /p:PlatformTarget=x64 /m
+rem dotnet build jlcUtils.csproj -c Release -p:PlatformTarget=x64 --no-restore
+rem dotnet build jlcUtils.csproj -c Release -p:PlatformTarget=x64 --no-restore -nr:true -p:UseSharedCompilation=true -v:diag 
+
+rem dotnet build jlcUtils.csproj -c Release -p:PlatformTarget=x64 --no-restore -v:diag 
+:: 2026/09/18 Added -p:AllowUnsafeBlocks=true to compile line.
+dotnet build jlcUtils.csproj -c Release -p:PlatformTarget=x64 -p:AllowUnsafeBlocks=true --no-restore -v:diag 
+
+iff %? ne 0 then
+  echo Error when using dotnet to complile project: %?
+  color bright green on black
+  quit 
+endiff
+
+color bright green on black
+
+echo.
+echo Loading plugin
+plugin /l bin\release\jlcUtils.dll
+
+echo.
+echo Plugin Info
+plugin /i jlcUtils
+echo.
+timer on
+echo Beginning tests for CSX
+jlcutils$csx prevdate.csx %_isodate
+jlcutils$csx CSTemplate.csx 10 20 30 
+echo.
+echo Beginning tests for @tcceval
+echo %@tcceval[expr 150.66 * 52]
+echo.
+echo Beginning test for jlcutils$unsafe
+jlcutils$unsafe
+timer off
+plugin /u jlcUtils
+ENDLOCAL
