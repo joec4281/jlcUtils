@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using System.Text;
 using TakeCommand.Plugin;
 using CSScriptLibrary;
@@ -18,12 +19,167 @@ public class jlcUtils : ITCCPlugin
         Email       = "jlcaverly@pm.me",
         WWW         = "https://github.com/JoeC4281",
         Description = "Demonstrates calling TCC commands from .NET",
-        Functions   = "CSTEST,CSX,DIRCOUNT,UNSAFE,@TCCEVAL",
+        Functions   = "CSTEST,CSX,DIRCOUNT,UNSAFE,WINDOWLIST,@TCCEVAL",
         Major       = 1, Minor = 0, Build = 1
     };
     public TCCPluginInfo GetPluginInfo() => _info;
     public bool Initialize()            => true;
     public bool Shutdown(bool end)       => true;
+    
+		// Command: WINDOWLIST [all]
+		// Lists titled top-level windows as CSV.
+		// window handle,process ID,thread ID,process name,window title
+		// Add "all" to include windows with empty titles.
+		public int WINDOWLIST(StringBuilder args)
+		{
+				string option = args.ToString().Trim();
+
+				if (option.Length > 0 &&
+						!string.Equals(option, "all", StringComparison.OrdinalIgnoreCase))
+				{
+						Console.Error.WriteLine("Usage: WINDOWLIST [all]");
+						return 1;
+				}
+
+				bool includeUntitled =
+						string.Equals(option, "all", StringComparison.OrdinalIgnoreCase);
+
+				var rows = new List<string[]>();
+
+				try
+				{
+						// Collect the windows first so the array can be created
+						// with the correct number of rows.
+						bool completed = EnumWindows(
+								delegate(IntPtr hWnd, IntPtr lParam)
+								{
+										var title = new StringBuilder(1024);
+										GetWindowText(hWnd, title, title.Capacity);
+
+										string windowTitle = title.ToString();
+										if (!includeUntitled && string.IsNullOrEmpty(windowTitle))
+												return true;
+
+										uint processId;
+										uint threadId =
+												GetWindowThreadProcessId(hWnd, out processId);
+
+										rows.Add(new[]
+										{
+												hWnd.ToInt64().ToString(),
+												processId.ToString(),
+												threadId.ToString(),
+												GetProcessName(processId),
+												windowTitle
+										});
+
+										return true;
+								},
+								IntPtr.Zero);
+
+						if (!completed)
+								return 1;
+
+						// SETARRAY dimensions must be positive. If there are no
+						// matching windows, create a one-row array with empty values.
+						int arrayRows = Math.Max(rows.Count, 1);
+
+						TakeCommand.PluginHost.InvokeCommand(
+								string.Format("SETARRAY /F WindowList[{0},5]", arrayRows));
+								
+						TakeCommand.PluginHost.InvokeCommand(
+						    string.Format("SET WindowListCount={0}", rows.Count));
+
+						// Print each CSV row, then assign its five array elements.
+						for (int row = 0; row < rows.Count; row++)
+						{
+								string[] fields = rows[row];
+
+								//Console.WriteLine(
+								//		"{0},{1},{2},{3},{4}",
+								//		fields[0],
+								//		fields[1],
+								//		fields[2],
+								//		Csv(fields[3]),
+								//		Csv(fields[4]));
+
+								var command = new StringBuilder();
+
+								for (int column = 0; column < 5; column++)
+								{
+										if (column > 0)
+												command.Append(" & ");
+
+										command.AppendFormat(
+												"SET WindowList[{0},{1}]={2}",
+												row,
+												column,
+												QuoteForTcc(fields[column]));
+								}
+
+								TakeCommand.PluginHost.InvokeCommand(command.ToString());
+						}
+
+						return 0;
+				}
+				catch (Exception ex)
+				{
+						Console.Error.WriteLine("WINDOWLIST: " + ex.Message);
+						return 1;
+				}
+		}
+
+		private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		private static extern bool EnumWindows(
+				EnumWindowsProc callback,
+				IntPtr lParam);
+
+		[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+		private static extern int GetWindowText(
+				IntPtr hWnd,
+				StringBuilder text,
+				int maxCount);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		private static extern uint GetWindowThreadProcessId(
+				IntPtr hWnd,
+				out uint processId);
+
+		private static string GetProcessName(uint processId)
+		{
+				try
+				{
+						using (Process process = Process.GetProcessById((int)processId))
+								return process.ProcessName;
+				}
+				catch
+				{
+						// The process may exit or be inaccessible during enumeration.
+						return "";
+				}
+		}
+
+		private static string Csv(string value)
+		{
+				if (value == null)
+						value = "";
+
+				if (value.IndexOfAny(new[] { ',', '"', '\r', '\n' }) >= 0)
+						return "\"" + value.Replace("\"", "\"\"") + "\"";
+
+				return value;
+		}
+
+		private static string QuoteForTcc(string value)
+		{
+				if (value == null)
+						value = "";
+
+				// Back quotes protect the value from TCC variable expansion.
+				return "`" + value + "`";
+		}
  
     // Command: DIRCOUNT <path>
     // Prints the number of files in the given directory.

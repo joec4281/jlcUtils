@@ -28,7 +28,6 @@ echo.
 echo Plugin Info
 plugin /i jlcUtils
 echo.
-timer on
 echo Beginning tests for CSX
 jlcutils$csx prevdate.csx %_isodate
 jlcutils$csx CSTemplate.csx 10 20 30 
@@ -38,6 +37,16 @@ echo %@tcceval[expr 150.66 * 52]
 echo.
 echo Beginning test for jlcutils$unsafe
 jlcutils$unsafe
+timer on
+echo Generating Window List to WindowList array...
+jlcUtils$WindowList
+iff %WindowListCount then 
+	do row = 0 to %@eval[%WindowListCount - 1]
+    echo %WindowList[%row,0],%WindowList[%row,1],%WindowList[%row,2],%WindowList[%row,3],%WindowList[%row,4]
+	enddo
+endiff
+echo WindowListCount=%WindowListCount
+echo @arrayinfo[WindowList,1]=%@arrayinfo[WindowList,1] 
 timer off
 plugin /u jlcUtils
 ENDLOCAL
