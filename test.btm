@@ -42,7 +42,7 @@ echo Generating Window List to WindowList array...
 jlcUtils$WindowList
 iff %WindowListCount then 
 	do row = 0 to %@eval[%WindowListCount - 1]
-    echo %WindowList[%row,0],%WindowList[%row,1],%WindowList[%row,2],%WindowList[%row,3],%WindowList[%row,4]
+		echo %WindowList[%row,0],%WindowList[%row,1],%WindowList[%row,2],%WindowList[%row,3],%WindowList[%row,4]
 	enddo
 endiff
 echo WindowListCount=%WindowListCount
