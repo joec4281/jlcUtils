@@ -287,16 +287,16 @@ public class jlcUtils : ITCCPlugin
 
     public unsafe int UNSAFE(StringBuilder args)
     {
-		int number = 42;
-		int* ptr = &number;
+			int number = 42;
+			int* ptr = &number;
 		
-		NativeStdout.WriteLine((string)"Value: " + number);
-    NativeStdout.WriteLine((string)"Address: " + (long)ptr);
-    NativeStdout.WriteLine((string)"Value via pointer: " + *ptr);
+			NativeStdout.WriteLine((string)"Value: " + number);
+			NativeStdout.WriteLine((string)"Address: " + (long)ptr);
+			NativeStdout.WriteLine((string)"Value via pointer: " + *ptr);
         
-    *ptr = 100;
-    NativeStdout.WriteLine((string)"New value: " + number);
-    return 1;
+			*ptr = 100;
+			NativeStdout.WriteLine((string)"New value: " + number);
+			return 1;
     }
 
     // Variable function: %@TCCEVAL[command]
