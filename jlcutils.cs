@@ -49,8 +49,6 @@ public class jlcUtils : ITCCPlugin
 
 				try
 				{
-						// Collect the windows first so the array can be created
-						// with the correct number of rows.
 						bool completed = EnumWindows(
 								delegate(IntPtr hWnd, IntPtr lParam)
 								{
@@ -81,17 +79,6 @@ public class jlcUtils : ITCCPlugin
 						if (!completed)
 								return 1;
 
-						// SETARRAY dimensions must be positive. If there are no
-						// matching windows, create a one-row array with empty values.
-						int arrayRows = Math.Max(rows.Count, 1);
-
-						TakeCommand.PluginHost.InvokeCommand(
-								string.Format("SETARRAY /F WindowList[{0},5]", arrayRows));
-								
-						TakeCommand.PluginHost.InvokeCommand(
-						    string.Format("SET WindowListCount={0}", rows.Count));
-
-						// Print each CSV row, then assign its five array elements.
 						for (int row = 0; row < rows.Count; row++)
 						{
 								string[] fields = rows[row];
@@ -114,22 +101,6 @@ public class jlcUtils : ITCCPlugin
 										Csv(fields[3]),
 										Csv(fields[4])));
 
-
-								//var command = new StringBuilder();
-
-								//for (int column = 0; column < 5; column++)
-								//{
-								//		if (column > 0)
-								//				command.Append(" & ");
-
-								//		command.AppendFormat(
-								//				"SET WindowList[{0},{1}]={2}",
-								//				row,
-								//				column,
-								//				QuoteForTcc(fields[column]));
-								//}
-
-								//TakeCommand.PluginHost.InvokeCommand(command.ToString());
 						}
 
 						return 0;

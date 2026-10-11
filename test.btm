@@ -29,6 +29,22 @@ echo Plugin Info
 plugin /i jlcUtils
 echo.
 echo Beginning tests for CSX
+echo CSTEST can re-direct its output.
+echo Clip /z
+clip /z
+CSTEST > clip:
+echo type clip:
+type clip:
+pause
+echo.
+echo @CSTEST[] can re-direct its output.
+echo Clip /z
+clip /z
+echo %@CSTEST[] > clip:
+echo type clip:
+type clip:
+pause
+echo.
 jlcutils$csx prevdate.csx %_isodate
 jlcutils$csx CSTemplate.csx 10 20 30 
 echo.
