@@ -19,7 +19,7 @@ public class jlcUtils : ITCCPlugin
         Email       = "jlcaverly@pm.me",
         WWW         = "https://github.com/JoeC4281",
         Description = "Demonstrates calling TCC commands from .NET",
-        Functions   = "CSTEST,CSX,DIRCOUNT,UNSAFE,WINDOWLIST,@TCCEVAL",
+        Functions   = "CSTEST,CSX,DIRCOUNT,UNSAFE,WINDOWLIST,@CSTEST,@TCCEVAL",
         Major       = 1, Minor = 0, Build = 1
     };
     public TCCPluginInfo GetPluginInfo() => _info;
@@ -30,6 +30,7 @@ public class jlcUtils : ITCCPlugin
 		// Lists titled top-level windows as CSV.
 		// window handle,process ID,thread ID,process name,window title
 		// Add "all" to include windows with empty titles.
+		// Added 2026-10-10
 		public int WINDOWLIST(StringBuilder args)
 		{
 				string option = args.ToString().Trim();
@@ -95,6 +96,8 @@ public class jlcUtils : ITCCPlugin
 						{
 								string[] fields = rows[row];
 
+								// Cannot re-direct output,
+								//   so commented the output lines.
 								//Console.WriteLine(
 								//		"{0},{1},{2},{3},{4}",
 								//		fields[0],
@@ -102,22 +105,31 @@ public class jlcUtils : ITCCPlugin
 								//		fields[2],
 								//		Csv(fields[3]),
 								//		Csv(fields[4]));
+								
+								NativeStdout.WriteLine(string.Format(
+										"{0},{1},{2},{3},{4}",
+										fields[0],
+										fields[1],
+										fields[2],
+										Csv(fields[3]),
+										Csv(fields[4])));
 
-								var command = new StringBuilder();
 
-								for (int column = 0; column < 5; column++)
-								{
-										if (column > 0)
-												command.Append(" & ");
+								//var command = new StringBuilder();
 
-										command.AppendFormat(
-												"SET WindowList[{0},{1}]={2}",
-												row,
-												column,
-												QuoteForTcc(fields[column]));
-								}
+								//for (int column = 0; column < 5; column++)
+								//{
+								//		if (column > 0)
+								//				command.Append(" & ");
 
-								TakeCommand.PluginHost.InvokeCommand(command.ToString());
+								//		command.AppendFormat(
+								//				"SET WindowList[{0},{1}]={2}",
+								//				row,
+								//				column,
+								//				QuoteForTcc(fields[column]));
+								//}
+
+								//TakeCommand.PluginHost.InvokeCommand(command.ToString());
 						}
 
 						return 0;
@@ -217,7 +229,8 @@ public class jlcUtils : ITCCPlugin
                 "    public string Hello() { return \"Hello from script\"; }\n" +
                 "}");
 
-            Console.WriteLine(script.Hello());
+            //Console.WriteLine(script.Hello());
+            NativeStdout.WriteLine((string)script.Hello());
             return 0;
         }
         catch (Exception ex)
@@ -232,6 +245,29 @@ public class jlcUtils : ITCCPlugin
             return 1;
         }
     }
+
+		public int f_CSTEST(StringBuilder args)
+		{
+				try
+				{
+						CSScript.EvaluatorConfig.Engine = EvaluatorEngine.CodeDom;
+
+						dynamic script = CSScript.Evaluator.LoadCode(
+								"public class Script {\n" +
+								"    public string Hello() { return \"Hello from script\"; }\n" +
+								"}");
+
+						args.Clear();
+						args.Append((string)script.Hello());
+						return 0;
+				}
+				catch (Exception ex)
+				{
+						args.Clear();
+						args.Append("CSTEST error: " + ex.Message);
+						return 1;
+				}
+		}
 
     public int CSX(StringBuilder args)
     {
@@ -283,13 +319,13 @@ public class jlcUtils : ITCCPlugin
 		int number = 42;
 		int* ptr = &number;
 		
-		Console.WriteLine("Value: " + number);
-        Console.WriteLine("Address: " + (long)ptr);
-        Console.WriteLine("Value via pointer: " + *ptr);
+		NativeStdout.WriteLine((string)"Value: " + number);
+    NativeStdout.WriteLine((string)"Address: " + (long)ptr);
+    NativeStdout.WriteLine((string)"Value via pointer: " + *ptr);
         
-        *ptr = 100;
-        Console.WriteLine("New value: " + number);
-        return 1;
+    *ptr = 100;
+    NativeStdout.WriteLine((string)"New value: " + number);
+    return 1;
     }
 
     // Variable function: %@TCCEVAL[command]
@@ -312,4 +348,38 @@ public class jlcUtils : ITCCPlugin
             return 1;
         }
     }
+
+		internal static class NativeStdout
+		{
+				private const int STD_OUTPUT_HANDLE = -11;
+
+				[DllImport("kernel32.dll", SetLastError = true)]
+				private static extern IntPtr GetStdHandle(int nStdHandle);
+
+				[DllImport("kernel32.dll", SetLastError = true)]
+				[return: MarshalAs(UnmanagedType.Bool)]
+				private static extern bool WriteFile(
+						IntPtr hFile,
+						byte[] buffer,
+						uint bytesToWrite,
+						out uint bytesWritten,
+						IntPtr overlapped);
+
+				public static void WriteLine(string text)
+				{
+						// Choose an encoding that matches the output encoding expected by TCC.
+						byte[] bytes = Encoding.UTF8.GetBytes(text + "\r\n");
+						IntPtr stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+						if (stdout == IntPtr.Zero || stdout == new IntPtr(-1))
+								throw new InvalidOperationException("Standard output handle is unavailable.");
+
+						if (!WriteFile(stdout, bytes, (uint)bytes.Length, out uint written, IntPtr.Zero)
+								|| written != bytes.Length)
+						{
+								throw new System.ComponentModel.Win32Exception(
+										Marshal.GetLastWin32Error());
+						}
+				}
+		}
 }

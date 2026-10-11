@@ -36,17 +36,14 @@ echo Beginning tests for @tcceval
 echo %@tcceval[expr 150.66 * 52]
 echo.
 echo Beginning test for jlcutils$unsafe
-jlcutils$unsafe
+echo Re-directing output to clipboard.
+jlcutils$unsafe > clip:
+echo Displaying cliboard contents.
+type clip:
 timer on
-echo Generating Window List to WindowList array...
-jlcUtils$WindowList
-iff %WindowListCount then 
-	do row = 0 to %@eval[%WindowListCount - 1]
-		echo %WindowList[%row,0],%WindowList[%row,1],%WindowList[%row,2],%WindowList[%row,3],%WindowList[%row,4]
-	enddo
-endiff
-echo WindowListCount=%WindowListCount
-echo @arrayinfo[WindowList,1]=%@arrayinfo[WindowList,1] 
+echo Generating Window List.
+echo Re-directing output to clipboard.
+jlcUtils$WindowList > clip:
 timer off
 plugin /u jlcUtils
 ENDLOCAL
