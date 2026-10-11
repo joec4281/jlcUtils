@@ -2,6 +2,8 @@
 @ECHO OFF
 if isdir r:\temp set temp=r:\temp
 
+if not exist "e:\documents\plugins\jlcutils\README.md" mklink "e:\documents\plugins\jlcutils\README.md" "e:\documents\github\jlcutils\README.md"
+
 pushd
 set tccignore=*.bak *.bmark *.org transcript.md
 set tccignore=/[!%tccignore]
@@ -13,6 +15,8 @@ copy /s %tccignore e:\documents\plugins\jlcUtils\*.*
 git add .
 git commit -m "Misc. Updates"
 git push
+
+fc README.md E:\documents\github\jlcutils\README.md
 popd
 
 ENDLOCAL
