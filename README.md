@@ -11,5 +11,4 @@ Using Pointers in a .NET plugin
 Ref: https://jpsoft.com/forums/threads/using-pointers-in-a-net-plugin.13411/  
   
 C# Run 
-
 Ref: https://jpsoft.com/forums/threads/c-run.13392/#post-77645   
