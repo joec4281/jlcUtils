@@ -5,3 +5,5 @@ This is from https://www.purebasic.fr/english/viewtopic.php?p=573938&hilit=Plugi
 Re-direction from a plugin written using PureBasic was not possible without this code.
 
 I used this as a basis for doing the same thing for a .NET plugin. 
+
+Ref: https://github.com/joec4281/jlcUtils/blob/main/jlcutils.cs#L323  
